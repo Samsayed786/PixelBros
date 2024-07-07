@@ -11,17 +11,25 @@ public class CameraController : MonoBehaviour
     private RaycastHit hit;
     private float _mouseVerticalValue;
     private Vector3 cam_offset;
+    private Vector3 currentCamPosition;
+
+    [Header("Zoom Settings")]
+    public float zoomSpeed = 5f; // Speed of the zoom transition
+    public float zoomDistance = 0.5f; // How much closer the camera moves to the player when zooming
+
+    [Header("Obstacle Detection")]
+    public LayerMask obstacleLayers; // Layers to detect as obstacles
+
     private float MouseVerticalValue
     {
         get => _mouseVerticalValue;
         set
         {
             if (value == 0) return;
-            
+
             float verticalAngle = _mouseVerticalValue + value;
             verticalAngle = Mathf.Clamp(verticalAngle, -maxVerticalAngle, 0);
             _mouseVerticalValue = verticalAngle;
-            
         }
     }
 
@@ -30,34 +38,36 @@ public class CameraController : MonoBehaviour
     private void Start()
     {
         cam_offset = cameraTransform.localPosition;
+        currentCamPosition = cam_offset;
     }
-    // Update is called once per frame
+
     void Update()
     {
-       
-        if(Physics.Linecast(transform.position,transform.position+  transform.localRotation*cam_offset,out hit))
+        Vector3 desiredCamPosition = cam_offset;
+
+        if (Physics.Linecast(transform.position, transform.position + transform.localRotation * cam_offset, out hit, obstacleLayers))
         {
-            cameraTransform.localPosition = new Vector3(0, 0, -Vector3.Distance(transform.position, hit.point));
-        }
-        else
-        {
-            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cam_offset, Time.deltaTime);
+            float distance = Vector3.Distance(transform.position, hit.point);
+            desiredCamPosition = new Vector3(0, 0, -distance);
         }
 
-    MouseVerticalValue = Input.GetAxis("Mouse Y");
+        currentCamPosition = Vector3.Lerp(currentCamPosition, desiredCamPosition, Time.deltaTime * zoomSpeed);
+        cameraTransform.localPosition = currentCamPosition;
+
+        MouseVerticalValue = Input.GetAxis("Mouse Y");
 
         Quaternion finalRotation = Quaternion.Euler(
             -MouseVerticalValue * sensitivity,
-        0, 0);
+            0, 0);
 
         cameraTransform.localRotation = finalRotation;
 
-		body.rotation = Quaternion.Euler(
-	    0,
-	    body.localRotation.eulerAngles.y + Input.GetAxis("Mouse X") * sensitivity,
-		0);
+        body.rotation = Quaternion.Euler(
+            0,
+            body.localRotation.eulerAngles.y + Input.GetAxis("Mouse X") * sensitivity,
+            0);
 
-		if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -68,6 +78,4 @@ public class CameraController : MonoBehaviour
             Cursor.visible = true;
         }
     }
-
-
 }
