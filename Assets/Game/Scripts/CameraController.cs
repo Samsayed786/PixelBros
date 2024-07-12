@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     public Transform cameraTransform;
-    public float maxVerticalAngle;
+    public float maxVerticalAngle = 80f;
     public Transform body;
     private RaycastHit hit;
     private float _mouseVerticalValue;
-    private Vector3 cam_offset;
+    private Vector3 camOffset;
     private Vector3 currentCamPosition;
 
     [Header("Zoom Settings")]
@@ -25,27 +24,32 @@ public class CameraController : MonoBehaviour
         get => _mouseVerticalValue;
         set
         {
-            if (value == 0) return;
-
             float verticalAngle = _mouseVerticalValue + value;
-            verticalAngle = Mathf.Clamp(verticalAngle, -maxVerticalAngle, 0);
+            verticalAngle = Mathf.Clamp(verticalAngle, -maxVerticalAngle, maxVerticalAngle);
             _mouseVerticalValue = verticalAngle;
         }
     }
 
-    public float sensitivity;
+    public float sensitivity = 2f;
 
     private void Start()
     {
-        cam_offset = cameraTransform.localPosition;
-        currentCamPosition = cam_offset;
+        camOffset = cameraTransform.localPosition;
+        currentCamPosition = camOffset;
     }
 
-    void Update()
+    private void Update()
     {
-        Vector3 desiredCamPosition = cam_offset;
+        HandleCameraZoom();
+        HandleCameraRotation();
+        HandleCursorLock();
+    }
 
-        if (Physics.Linecast(transform.position, transform.position + transform.localRotation * cam_offset, out hit, obstacleLayers))
+    private void HandleCameraZoom()
+    {
+        Vector3 desiredCamPosition = camOffset;
+
+        if (Physics.Linecast(transform.position, transform.position + transform.localRotation * camOffset, out hit, obstacleLayers))
         {
             float distance = Vector3.Distance(transform.position, hit.point);
             desiredCamPosition = new Vector3(0, 0, -distance);
@@ -53,11 +57,13 @@ public class CameraController : MonoBehaviour
 
         currentCamPosition = Vector3.Lerp(currentCamPosition, desiredCamPosition, Time.deltaTime * zoomSpeed);
         cameraTransform.localPosition = currentCamPosition;
+    }
 
-        MouseVerticalValue = Input.GetAxis("Mouse Y");
-
+    private void HandleCameraRotation()
+    {
+        MouseVerticalValue = Input.GetAxis("Mouse Y") * sensitivity;
         Quaternion finalRotation = Quaternion.Euler(
-            -MouseVerticalValue * sensitivity,
+            -MouseVerticalValue,
             0, 0);
 
         cameraTransform.localRotation = finalRotation;
@@ -66,7 +72,10 @@ public class CameraController : MonoBehaviour
             0,
             body.localRotation.eulerAngles.y + Input.GetAxis("Mouse X") * sensitivity,
             0);
+    }
 
+    private void HandleCursorLock()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             Cursor.lockState = CursorLockMode.Locked;
