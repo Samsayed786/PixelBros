@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public GameObject deathScreenUI; // Reference to the death screen UI Canvas or Panel
 
     private void Awake()
     {
@@ -22,15 +23,13 @@ public class GameManager : MonoBehaviour
 
     public void PlayerDied()
     {
-        // Show the death screen and restart the level
+        // Show the death screen
         ShowDeathScreen();
     }
 
     private void ShowDeathScreen()
     {
-        // Code to display the death screen
-        // For example, enabling a UI panel
-        // You can create a simple UI Canvas with a death message and a restart button
+        deathScreenUI.SetActive(true); // Show the death screen UI
         Debug.Log("Player Died! Displaying death screen...");
     }
 
