@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public GameObject deathScreenUI; // Reference to the death screen UI Canvas or Panel
+    public GameObject mainMenuPanel; // Reference to the Main Menu Panel
 
     private void Awake()
     {
@@ -14,6 +15,9 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Show the main menu on start
+            ShowMainMenu();
         }
         else
         {
@@ -37,5 +41,30 @@ public class GameManager : MonoBehaviour
     {
         // Restart the current level
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void StartLevel()
+    {
+        // Load the level "Level1" when the start button is pressed
+        SceneManager.LoadScene("Level1");
+        HideMainMenu(); // Hide the main menu when the game starts
+    }
+
+    public void QuitGame()
+    {
+        // Quit the application
+        Application.Quit();
+    }
+
+    public void ShowMainMenu()
+    {
+        // Show the Main Menu Panel
+        mainMenuPanel.SetActive(true);
+    }
+
+    public void HideMainMenu()
+    {
+        // Hide the Main Menu Panel
+        mainMenuPanel.SetActive(false);
     }
 }
