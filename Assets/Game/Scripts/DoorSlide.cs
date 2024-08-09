@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class SlidingDoor : MonoBehaviour
 {
@@ -7,20 +8,41 @@ public class SlidingDoor : MonoBehaviour
     public Transform rightDoor;
     public float slideDistance = 2f;
     public float slideSpeed = 1f;
+    public TextMeshProUGUI interactionText;
     private bool isOpen = false;
     private bool isMoving = false;
 
+    private void Start()
+    {
+        interactionText.gameObject.SetActive(false); 
+    }
+
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Player") && Input.GetKeyDown(KeyCode.E) && !isMoving)
+        if (other.CompareTag("Player"))
         {
-            StartCoroutine(SlideDoor());
+            interactionText.gameObject.SetActive(true); 
+
+            if (Input.GetKeyDown(KeyCode.E) && !isMoving)
+            {
+                StartCoroutine(SlideDoor());
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            interactionText.gameObject.SetActive(false); 
         }
     }
 
     IEnumerator SlideDoor()
     {
         isMoving = true;
+        interactionText.gameObject.SetActive(false); 
+
         Vector3 leftTargetPosition = leftDoor.localPosition + new Vector3(0, 0, isOpen ? -slideDistance : slideDistance);
         Vector3 rightTargetPosition = rightDoor.localPosition + new Vector3(0, 0, isOpen ? slideDistance : -slideDistance);
 
@@ -33,7 +55,14 @@ public class SlidingDoor : MonoBehaviour
 
         leftDoor.localPosition = leftTargetPosition;
         rightDoor.localPosition = rightTargetPosition;
+
         isOpen = !isOpen;
         isMoving = false;
+
+        if (isOpen)
+        {
+            yield return new WaitForSeconds(5f); 
+            StartCoroutine(SlideDoor()); 
+        }
     }
 }
