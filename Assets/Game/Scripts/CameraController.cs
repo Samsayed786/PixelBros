@@ -42,7 +42,7 @@ public class CameraController : MonoBehaviour
     {
         HandleCameraZoom();
         HandleCameraRotation();
-        HandleCursorLock();
+       /*HandleCursorLock();*/
     }
 
     private void HandleCameraZoom()
@@ -74,17 +74,6 @@ public class CameraController : MonoBehaviour
             0);
     }
 
-    private void HandleCursorLock()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+   
+    
 }

@@ -25,6 +25,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        HandleCursorLock();
+    }
+
+    private void HandleCursorLock()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
     public void PlayerDied()
     {
         // Show the death screen
@@ -33,21 +47,29 @@ public class GameManager : MonoBehaviour
 
     private void ShowDeathScreen()
     {
-        deathScreenUI.SetActive(true); // Show the death screen UI
+        deathScreenUI.SetActive(true);
         Debug.Log("Player Died! Displaying death screen...");
+
+        // Unlock the cursor and make it visible when the death screen is shown
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void RestartLevel()
     {
-        // Restart the current level
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void StartLevel()
     {
-        // Load the level "Level1" when the start button is pressed
-        SceneManager.LoadScene("Level1");
-        HideMainMenu(); // Hide the main menu when the game starts
+        //SceneManager.LoadScene("LevelName");
+        HideMainMenu();
+
+        // Lock the cursor and hide it when the level starts
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        Debug.Log("Start Level button pressed. Loading Level1...");
     }
 
     public void QuitGame()
